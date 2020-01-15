@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Medium Blogs</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Helvetica';
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+
+        }
+
+        #main {}
+
+        #blog-bar {
+            padding: 50px;
+        }
+
+        #blog-bar h2,
+        #blog-bar input {
+            display: inline
+        }
+
+        #blog-bar h2 {
+            font-weight: 300;
+        }
+
+        #blog-bar input {
+            float: right;
+            padding: 10px;
+            border-radius: 16px;
+            border: none;
+        }
+
+        #blog-grid {
+            padding: 20px;
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: space-evenly
+        }
+
+        .blog-item {
+            /* height: 300px; */
+            width: 300px;
+            background: rgb(255, 255, 255);
+            margin: 15px;
+            padding: 20px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+            transition: box-shadow 0.8s;
+        }
+
+        .blog-item img {
+            width: 100%;
+        }
+
+        .blog-item a {
+            text-decoration: none;
+            color: #505050;
+        }
+
+        .blog-item:hover {
+            box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+        }
+
+        @media screen and (max-width: 700px) {
+            #blog-bar {
+                text-align: center;
+            }
+            #id {
+                float: initial !important;
+                margin-top: 30px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="main">
+        <div id="blog-bar">
+            <h2>Medium Blog</h2>
+            <input placeholder="Medium Account ID" value="" id="id">
+        </div>
+        <div id="blog-grid">
+
+        </div>
+    </div>
+    <div id="dump" style="display: none;"></div>
+</body>
+
+<script>
+    let k;
+    let Profile = {};
+
+    const buildUI = () => {
+        document.getElementById('blog-grid').innerHTML = "";
+        Profile.forEach(i => {
+
+            document.getElementById('dump').innerHTML = i.content;
+            let c = document.getElementById('dump').innerText;
+            let e =
+                `
+            <div class="blog-item" >
+                <a target="_blank" href="${i.link}">
+                    <img src=${i.thumbnail}>
+                    <h2>${i.title}</h2>
+                    <p>${c.slice(0, 200)}...</p>
+                </a>
+               
+            </div>
+            `
+            document.getElementById('blog-grid').innerHTML += e;
+        });
+
+    }
+
+    const getProfile = async () => {
+        localStorage.User = document.getElementById('id').value.replace('@', '')
+        try {
+            let r = await fetch(
+                `https://api.rss2json.com/v1/api.json?rss_url=https://medium.com/feed/@${localStorage.User}/?format=json`,
+            );
+            Profile = await r.json();
+            Profile = Profile.items;
+            Profile.who = document.getElementById('id').value.replace('@', '')
+            localStorage.Profile = JSON.stringify(Profile);
+            buildUI();
+        } catch (e) {
+        }
+
+    }
+
+    document.getElementById('id').onkeydown = () => {
+        clearTimeout(k);
+        k = setTimeout(() => {
+            getProfile();
+        }, 5000)
+    }
+
+    if (localStorage.User) {
+        Profile = JSON.parse(localStorage.Profile);
+        document.getElementById('id').value = localStorage.User;
+        buildUI();
+    } else {
+        document.getElementById('blog-grid').innerHTML = `<div class="blog-item">  <br> <br> <br> <br> Enter a valid username above <br> <br> to begin <br> <br>  <br> <br></div>`
+    }
+
+</script>
+
+</html>
