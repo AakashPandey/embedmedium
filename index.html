@@ -100,14 +100,17 @@
 
             document.getElementById('dump').innerHTML = i.content;
             let c = document.getElementById('dump').innerText;
-            c = c.slice(c.indexOf("Unsplash")+8, c.length);
+            c = c.slice(0, 200)
+            if(c.includes('Unsplash')) {
+                c = c.slice(c.indexOf("Unsplash")+8, c.length);
+            }
             let e =
                 `
             <div class="blog-item" >
                 <a target="_blank" href="${i.link}">
                     <img src=${i.thumbnail}>
                     <h2>${i.title}</h2>
-                    <p>${c.slice(0, 200)}...</p>
+                    <p>${c}...</p>
                 </a>
                
             </div>
